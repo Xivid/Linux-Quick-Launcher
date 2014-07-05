@@ -18,6 +18,9 @@ class Executable:
                 if line.find('=') > -1:
                     line = line.strip().split('=', 1)
                     dic[line[0]] = line[1]
+
+                elif line[:8]=='[Desktop' and line[9:15]!='Entry]':
+                    break
                 line = f.readline()
             f.close()
 

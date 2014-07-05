@@ -3,7 +3,7 @@ import subprocess, webbrowser
 
 #Init & Start-up info
 searcher = Searcher()
-print "Linux Quick Launcher"
+print "=========Linux Quick Launcher========="
 print "Type in keywords to search for apps"
 print "Type ':q' to quit program"
 
@@ -28,6 +28,6 @@ while True:
              choice = eval(raw_input())
              if choice >= 0:
                  print 'will execute:' + launch_list[choice]['Exec']
-                 subprocess.Popen(launch_list[choice]['Exec'])
+                 subprocess.Popen(launch_list[choice]['Exec'], shell = True)
     #console display
 
