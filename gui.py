@@ -3,14 +3,16 @@ from functions import *
 import subprocess
 
 def run(app):
-    subprocess.Popen(app,  shell = True)
-
+    subprocess.Popen(app, shell = True)
+    entry.focus_set()
+    entry_text.set("")
+    search()
+        
 def select(event):
     global entry_text, flag
-    print apps.curselection(), event.keysym
-    print flag
+
     if event.keysym == "Return" and sum != 0:
-        subprocess.Popen(result[apps.curselection()[0]]["Exec"], shell = True)
+        run(result[apps.curselection()[0]]["Exec"])
         return
     elif event.keysym == "Escape":
         entry.focus_set()
@@ -21,14 +23,19 @@ def select(event):
     elif event.keysym == "Up" and apps.curselection()[0] == 0:
         flag = True
         return
-        
-    flag = False
+    if event.keysym == "Down":
+        flag = False
 
+def mouse_select(event):
+    if len(apps.curselection()) > 0:
+        run(result[apps.curselection()[0]]["Exec"])
+        search()
+    
 def input(event):
     global result, apps, entry_text, sum
-    print event.keysym, event.keycode
+
     if event.keysym == "Return" and sum != 0:
-        subprocess.Popen(result[0]["Exec"], shell = True)
+        run(result[0]["Exec"])
         return
     elif event.keysym == "Escape":
         entry_text.set("")
@@ -63,17 +70,19 @@ def search():
     if kw != "" and sum != 0:            
         
         if sum < 20:
-            root.geometry("{}x{}+0+0".format(width, 35 + height * sum + int(12.21 - sum * 2.21)))
+            root.geometry("{}x{}+100+50".format(width, 35 + height * sum + int(12.21 - sum * 2.21)))
             apps = Listbox(root, width = 25, height = sum, font = " -25")           
         else:
-            root.geometry("{}x{}+0+0".format(width, 35 + height * 20 - 28))
+            root.geometry("{}x{}+100+50".format(width, 35 + height * 20 - 28))
             apps = Listbox(root, width = 25, height = 20, font = " -25")  
         
         apps.place(x = 5, y = 10 + height)
+        apps.bind("<ButtonRelease-1>", mouse_select)
+        
         for i in range(sum):
             apps.insert(i, result[i]["Name"])
     else:
-        root.geometry("{}x{}+0+0".format(width, 35))
+        root.geometry("{}x{}+100+50".format(width, 35))
         
 result, apps = [], []
 searcher = Searcher()
@@ -85,7 +94,7 @@ root = Tk()
 
 root.maxsize(width, 10 + height * 21)
 root.minsize(240, 10 + height)
-root.geometry("{}x{}+0+0".format(width, 35))
+root.geometry("{}x{}+100+50".format(width, 35))
 
 root.title("Linux Quick Launcher")
 
