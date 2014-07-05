@@ -1,52 +1,53 @@
-import os
-import re
-import subprocess
-
-def getname(l):
-    i = 0
-    for app in l:
-        fp = open("/usr/share/applications/" + app,  "r")
-        name = "init"
-        flag = False
-        
-        while name:
-            name = fp.readline()
-            if name[:4] == "Name":
-                flag = True
-                break
-                
-        name = name[name.find("=") + 1:-1] if flag else ""
-        l[i] = name
-        
-        fp.close()
-        i += 1
-
-namelist = sorted([app for app in os.listdir("/usr/share/applications") if app[-8:] == ".desktop"])
-applist = [app[:-8] for app in namelist]
-getname(namelist)
-
+from functions import *
+import subprocess, webbrowser
+#Init & Start-up info
+searcher = Searcher()
 print "Linux Quick Launcher"
-print "Type keyword to find or search app"
-print "Type 'exit' to exit program"
-
+print "Type in keywords to search for apps"
+print "Type ':q' to quit program"
 
 while True:
-    kw = raw_input()
-    if kw == "":
+    keyword = raw_input()
+    if keyword == "":
         continue
-    if kw.lower() == "exit":
+    elif keyword == ":q":
+        print "Thanks for using, bye."
         exit()
-    
-    rekw = kw.replace("*", ".*")
-    rekw = ".*" + rekw.replace("?", ".") + ".*"
-    result = sorted([[namelist[i],  applist[i]] for i in range(len(namelist)) if re.match(rekw.lower(), namelist[i].lower())])
-    
-    if result == []:
-        print "No app found!"
-    elif len(result) == 1 and kw.lower() == result[0][0].lower():
-        subprocess.Popen(result[0][1],  shell = True)
     else:
-        i = 1
-        for app in result:
-            print str(i) + ". " + app[0]
-            i += 1
+        launch_list = searcher.getlist(keyword)
+
+        #console display
+        if launch_list == []:
+            print "No matching results."
+        else: #result ranges from 0 to length-1
+             length = len(launch_list)
+             for i in range(0, length):
+                 print str(i) + ". " + launch_list[i][1]
+             choice = eval(raw_input())
+             if choice >= 0:
+                 print 'will run:' + launch_list[choice][0]
+                 subprocess.Popen(launch_list[choice][0])
+    #console display
+
+
+# while True:
+#     kw = raw_input()
+#     if kw == "":
+#         continue
+#     if kw == ":q":
+#         print "Thanks for using. Bye."
+#         exit()
+#
+#     rekw = kw.replace("*", ".*")
+#     rekw = ".*" + rekw.replace("?", ".") + ".*" #replace with regular expressions
+#     result = sorted([[namelist[i],  applist[i]] for i in range(len(namelist)) if re.match(rekw.lower(), namelist[i].lower())])
+#
+#     if result == []:
+#         print "No app found!"
+#     else: #result ranges from 0 to length-1
+#         length = len(result)
+#         for i in range(0, length):
+#             print str(i) + ". " + result[i][0]
+#         choice = eval(raw_input())
+#         if choice >= 0:
+#             subprocess.Popen(result[choice][1])
