@@ -18,19 +18,16 @@ def select(event):
         entry.focus_set()
         entry_text.set("")
         search()
-    elif event.keysym == "Up" and (flag or sum == 1):
-        entry.focus_set()
-    elif event.keysym == "Up" and int(apps.curselection()[0]) == 0:
-        flag = True
-        return
-    if event.keysym == "Down":
-        flag = False
 
 def mouse_select(event):
     if len(apps.curselection()) > 0:
         run(result[int(apps.curselection()[0])]["Exec"])
         search()
-    
+
+def up(event):
+    if int(apps.curselection()[0]) == 0:
+        entry.focus_set()
+
 def input(event):
     global result, apps, entry_text, sum
 
@@ -43,6 +40,7 @@ def input(event):
         try:
             apps.focus_set()
             apps.bind("<KeyRelease>", select)
+            apps.bind("<KeyPress-Up>", up)
             apps.selection_set(0)
         except:
             pass
