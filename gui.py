@@ -12,7 +12,7 @@ def select(event):
     global entry_text, flag
 
     if event.keysym == "Return" and sum != 0:
-        run(result[apps.curselection()[0]]["Exec"])
+        run(result[int(apps.curselection()[0])]["Exec"])
         return
     elif event.keysym == "Escape":
         entry.focus_set()
@@ -20,7 +20,7 @@ def select(event):
         search()
     elif event.keysym == "Up" and (flag or sum == 1):
         entry.focus_set()
-    elif event.keysym == "Up" and apps.curselection()[0] == 0:
+    elif event.keysym == "Up" and int(apps.curselection()[0]) == 0:
         flag = True
         return
     if event.keysym == "Down":
@@ -28,7 +28,7 @@ def select(event):
 
 def mouse_select(event):
     if len(apps.curselection()) > 0:
-        run(result[apps.curselection()[0]]["Exec"])
+        run(result[int(apps.curselection()[0])]["Exec"])
         search()
     
 def input(event):
@@ -43,6 +43,7 @@ def input(event):
         try:
             apps.focus_set()
             apps.bind("<KeyRelease>", select)
+            apps.selection_set(0)
         except:
             pass
         return
@@ -75,10 +76,10 @@ def search():
         
         if sum < 20:
             root.geometry("{}x{}+100+50".format(width, 35 + height * sum + int(12.21 - sum * 2.21)))
-            apps = Listbox(root, width = 25, height = sum, font = " -25")           
+            apps = Listbox(root, width = 25, height = sum, font = " -25")         
         else:
             root.geometry("{}x{}+100+50".format(width, 35 + height * 20 - 28))
-            apps = Listbox(root, width = 25, height = 20, font = " -25")  
+            apps = Listbox(root, width = 25, height = 20, font = " -25")
         
         apps.place(x = 5, y = 10 + height)
         apps.bind("<ButtonRelease-1>", mouse_select)
