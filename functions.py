@@ -44,6 +44,15 @@ class Searcher:
         self.items = [Executable("/usr/share/applications/"+desktop) for desktop in os.listdir("/usr/share/applications") if desktop[-8:] == ".desktop"]
         self.items = sorted([app for app in self.items if app.Type == "Application"], key = lambda app: app.Name)
 
+        # remove extra items with duplicate Exec
+        execs = set()  # [app['Exec'] for app in self.items])
+        items = []
+        for item in self.items:
+            if not (item.Name, item.Exec) in execs:
+                items.append(item)
+                execs.add((item.Name, item.Exec))
+        self.items = items
+
     def getlist(self, keyword):
         '''
             result is a list of dictionaries:
@@ -54,7 +63,7 @@ class Searcher:
         rekw = keyword
         for char in "\/.+$^[](){}|":  # prevent the occurrence of user-input regular expressions
             rekw = rekw.replace(char, '\\'+char)
-        rekw = '(.*)(' + rekw.replace('*', '.*').replace('?', '.') + ')(.*)'
+        rekw = '(.*?)(' + rekw.replace('*', '.*').replace('?', '.') + ')(.*?)'
         # replace with regular expressions
         result = sorted([dict({'Name': app.Name, 'Comment': app.Comment, 'Exec': app.Exec, 'Pos': re.match(rekw.lower(), app.Name.lower()).start(2)})
                          for app in self.items if re.match(rekw.lower(), app.Name.lower())],

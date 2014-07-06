@@ -29,4 +29,4 @@ while True:
             if choice >= 0:
                 print 'will execute:' + launch_list[choice]['Exec']
                 subprocess.Popen(launch_list[choice]['Exec'], shell = True)
-#console display
+        #console display
