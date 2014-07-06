@@ -89,7 +89,7 @@ def search():
     else:
         root.geometry("{}x{}+100+50".format(width, 35))
         
-result, apps = [{}], []
+result, apps = [], []
 searcher = Searcher()
 width, height = 240, 25
 sum = 0
