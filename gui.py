@@ -63,10 +63,14 @@ def search():
         
     if kw == ":q":
         root.destroy()
+        return
 
-    result = searcher.getlist(kw)
+    try:
+        result = searcher.getlist(kw)
+    except:
+        result = []
     sum = len(result)
-
+    
     if kw != "" and sum != 0:            
         
         if sum < 20:
@@ -84,7 +88,7 @@ def search():
     else:
         root.geometry("{}x{}+100+50".format(width, 35))
         
-result, apps = [], []
+result, apps = [{}], []
 searcher = Searcher()
 width, height = 240, 25
 sum = 0
@@ -93,13 +97,13 @@ flag = False
 root = Tk()
 
 root.maxsize(width, 10 + height * 21)
-root.minsize(240, 10 + height)
+root.minsize(width, 10 + height)
 root.geometry("{}x{}+100+50".format(width, 35))
 
 root.title("Linux Quick Launcher")
 
 entry_text = StringVar()
-entry = Entry(root, width = 32, textvariable = entry_text)
+entry = Entry(root, width = 32, textvariable = entry_text, font = "Ubuntu -13")
 entry.place(x = 5, y = 5)
 entry.bind("<KeyRelease>", input)
 entry.focus_set()
