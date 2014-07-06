@@ -51,8 +51,12 @@ class Searcher:
                 result[i]['Comment']: app brief introduction
                 result[i]['Exec']: app launch method
         '''
-        rekw = ".*" + keyword.replace("*", ".*").replace("?", ".") + ".*" #replace with regular expressions
-        result = sorted([dict({'Name': app.Name, 'Comment': app.Comment, 'Exec': app.Exec, })
+        rekw = keyword
+        for char in "\/.+$^[](){}|":  # prevent the occurrence of user-input regular expressions
+            rekw = rekw.replace(char, '\\'+char)
+        rekw = '(.*)(' + rekw.replace('*', '.*').replace('?', '.') + ')(.*)'
+        # replace with regular expressions
+        result = sorted([dict({'Name': app.Name, 'Comment': app.Comment, 'Exec': app.Exec, 'Pos': re.match(rekw.lower(), app.Name.lower()).start(2)})
                          for app in self.items if re.match(rekw.lower(), app.Name.lower())],
-                        key = lambda dic: len(dic['Name']))
+                        key=lambda x: (x['Pos'], x['Name']))  # match position first, then dictionary order
         return result
