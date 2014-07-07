@@ -3,6 +3,7 @@ from functions import *
 import subprocess
 
 def run(app):
+    print app
     subprocess.Popen(app, shell = True)
     entry.focus_set()
     entry_text.set("")
@@ -90,7 +91,6 @@ def search():
         root.geometry("{}x{}+100+50".format(width, 35))
 
 result, apps = [{}], []
-searcher = Searcher()
 width, height = 240, 25
 sum = 0
 flag = False

@@ -1,5 +1,5 @@
 from functions import *
-import subprocess, webbrowser
+import subprocess
 
 if __name__ == '__main__':
     #Init & Start-up info

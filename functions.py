@@ -59,14 +59,28 @@ class Searcher:
         dirlist = ['/bin/', '/usr/bin/', '/usr/local/bin/']
         for dir in dirlist:
             self.syslist += self.getcommand(dir)
+        # print len(self.syslist), 'items found in system directories.'
 
         #filesystem
-        self.xlist = []
-        dirlist = ['/bin/', '/boot/', '/home/', '/opt/', '/usr/']
-        for dir in dirlist:
-            self.xlist += self.getcommand(dir)
-        dirlist = []  # sudo dirs
+        self.xlist = self.syslist
 
+    def getcommand(self, directory, root = False):
+        """
+        Get the filename('Name') and path('Exec') of all executable files in a given directory and its sub-directories.
+        Recursive function. Very slow.
+        :param directory: complete path of a directory
+        :return: a list of dictionaries with ['Name'], ['Exec'], ['Comment']
+        """
+        retlist = []
+        os.chdir(directory)
+        for filename in os.listdir(directory):
+            if (not os.path.islink(filename)) and os.path.isdir(filename):
+                retlist += self.getcommand(directory+filename+'/')
+                os.chdir(directory)
+            elif os.system('if [ -x "{}" ]; then return 1; else return 0; fi'.format(filename)) == 256:
+                retlist.append(dict({"Name": filename, 'Comment': directory + filename,
+                                     "Exec": ('xterm -hold -e sudo ' if root else 'xterm -hold -e ') + directory + filename}))
+        return retlist
 
     def refy(self, keyword):
         # replace with regular expressions
@@ -88,6 +102,14 @@ class Searcher:
         if keyword[:4] == ':sys':
             return self.getsys(keyword.split(' ', 1)[1].strip())
         elif keyword[:2] == ':x':
+            if self.xlist == self.syslist:
+                dirlist = ['/bin/', '/boot/', '/home/', '/opt/', '/usr/']
+                for dir in dirlist:
+                    self.xlist += self.getcommand(dir)
+                dirlist = ['/sbin/', '/usr/sbin/', '/usr/local/sbin/']  # commands here requires root permission
+                for dir in dirlist:
+                    self.xlist += self.getcommand(dir, root = 'True')
+                print len(self.xlist), 'items found in the filesystem.'
             return self.getx(keyword.split(' ', 1)[1].strip())
 
         # default(only desktop applications)
@@ -96,16 +118,6 @@ class Searcher:
                          for app in self.items if re.match(rekw.lower(), app.Name.lower())],
                         key=lambda x: (x['Pos'], x['Name']))  # match position first, then dictionary order
         return result
-
-    def getcommand(self, directory):
-        retlist = []
-        os.chdir(directory)
-        for filename in os.listdir(directory):
-            if os.path.isdir(filename):
-                retlist += self.getcommand(directory+retlist+'/')  # !!!BUG!!!: soft links can cause infinite circles
-            elif os.system('if [ -x "{}" ]; then return 1; else return 0; fi'.format(filename)) == 256:
-                retlist.append(dict({"Name": filename, 'Comment': filename, "Exec": directory+filename}))
-        return retlist
 
     def getsys(self, keyword):
         """
