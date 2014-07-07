@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "functions.h"
 #include <QMainWindow>
 #include <QWidget>
 #include <QListWidget>
@@ -30,11 +31,14 @@ public:
 private slots:
     void on_lineEdit_textChanged(const QString &arg1);
 
-    void on_listWidget_itemClicked(QListWidgetItem *item);
+    void on_listWidget_itemClicked();
+
+    void toggle();
 
 private:
     Ui::MainWindow *ui;
-    QList <QString> result;
+    Searcher *searcher;
+    QList <QStringList> result;
     int sum;
 };
 

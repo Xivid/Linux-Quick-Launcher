@@ -1,19 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-//#include "functions.h"
+#include "functions.cpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    this->searcher = new Searcher();
+
     this->sum = 0;
     this->result.clear();
+
     ui->listWidget->clear();
     ui->listWidget->hide();
+
     this->setGeometry(100, 50, 256, 27);
     this->setFixedSize(QSize(256, 27));
     this->setWindowFlags(Qt::FramelessWindowHint);
+
     ui->lineEdit->setFocusPolicy(Qt::StrongFocus);
     ui->listWidget->setFocusPolicy(Qt::StrongFocus);
 }
@@ -37,35 +43,31 @@ void MainWindow::reset()
 void MainWindow::run(int index)
 {
     QProcess *poc = new QProcess;
-    poc->start("yelp");
+    poc->start((this->result[index])[1]);
     reset();
 }
 
-void MainWindow::on_lineEdit_textChanged(const QString &arg1)
+void MainWindow::on_lineEdit_textChanged(const QString &keyword)
 {
-
-    QString keyword = ui->lineEdit->text();
     if (keyword == ":q")
         this->close();
 
-    //getlist(this->result, keyword);
-    this->result.clear();
-    for (int i = 0; i < 20; i++)
-        this->result.append(QString(i));
+    this->searcher->getlist(this->result, keyword);
     this->sum = this->result.size();
 
     if (keyword != "" && this->sum != 0)
     {
         ui->listWidget->clear();
-        //QListWidgetItem item;
-        for (int i = 0; i < this->sum + 10; i++)
+
+        for (int i = 0; i < this->sum; i++)
         {
-            //item.setText(this->result[i]);
-            //setText(this->result[i]);
-            ui->listWidget->insertItem(i, "App");
+            QListWidgetItem *item = new QListWidgetItem((this->result[i])[0], ui->listWidget);
+            item->setToolTip(this->result[i][2]);
+            ui->listWidget->insertItem(i, item);
         }
-        ui->listWidget->setFixedSize(QSize(256,  int(20 * this->sum)));
-        this->setFixedSize(QSize(256, 27 + int(19.2 * this->sum)));
+
+        ui->listWidget->setFixedSize(QSize(256,  int(20 * (this->sum > 20? 20 : this->sum))));
+        this->setFixedSize(QSize(256, 27 + int(19.2 * (this->sum > 20? 20 : this->sum))));
         ui->listWidget->show();
     }
     else
@@ -102,7 +104,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
             {
                 ui->listWidget->setFocus();
                 ui->listWidget->setCurrentRow(0);
-                QToolTip::showText(QPoint(100 + 128, 80), "TAT", ui->listWidget, QRect(100, 50 + 27, 256, int(20 * this->sum)));
             }
             break;
         default:
@@ -111,12 +112,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     }
     else if (ui->listWidget->hasFocus())
     {
-        int w, h = 0;
-        if (ui->listWidget->currentRow() - h > 20)
-            w = 77 + 384;
-        else
-            w = 77 + int(19.2 * (ui->listWidget->currentRow() - h));
-
         switch (event->key())
         {
         case Qt::Key_Return:
@@ -125,14 +120,11 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         case Qt::Key_Escape:
             reset();
             break;
-        default:
-            QToolTip::showText(QPoint(100 + 128, w), "QAQ", ui->listWidget, QRect(100, 77 + 292, 100, 77 + 292));//
-            break;
         }
     }
 }
 
-void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
+void MainWindow::on_listWidget_itemClicked()
 {
     run(ui->listWidget->currentRow());
 }
