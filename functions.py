@@ -75,6 +75,9 @@ class Searcher:
         os.chdir(directory)
         for filename in os.listdir(directory):
             if (not os.path.islink(filename)) and os.path.isdir(filename):
+                if '/sbin/' in directory and not root:
+                    # avoid duplicate searching
+                    continue
                 retlist += self.getcommand(directory+filename+'/')
                 os.chdir(directory)
             elif os.system('if [ -x "{}" ]; then return 1; else return 0; fi'.format(filename)) == 256:
